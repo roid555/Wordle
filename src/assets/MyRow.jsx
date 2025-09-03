@@ -1,42 +1,23 @@
 import { div } from "framer-motion/client";
 import "./myRow.css";
-import React, { useRef } from "react";
-const LETTER_IN_WORD = 5;
+import React, { useRef, useImperativeHandle } from "react";
+import { PLAYER_ATTEMPTS, LETTER_IN_WORD } from "../constants";
 
-const MyRow = () => {
+const MyRow = ({
+  rowNum = rowNum,
+  checkSolution = checkSolution,
+  ref = ref,
+}) => {
   const inputs = useRef([]);
-  const solution = "REACT";
 
-  function handleKeyDown(e, index) {
-    if (e.target.value.length === 1) {
-      index < LETTER_IN_WORD - 1 ? inputs.current[index + 1].focus() : null;
-    }
-    if (e.key === "Backspace" && e.target.value.length === 0 && index > 0) {
-      inputs.current[index - 1].value = "";
-      inputs.current[index - 1].focus();
-    }
-    if (e.key === "Enter" && index === LETTER_IN_WORD - 1) {
-      checkSolution();
-    }
-  }
-  function checkSolution() {
-    let guess = inputs.current
-      .map((l) => l.value)
-      .join("")
-      .toUpperCase();
-
-    for (let i = 0; i < LETTER_IN_WORD; i++) {
-      if (guess[i] === solution[i]) {
-        inputs.current[i].classList.add("correct");
-      } else if (solution.includes(guess[i])) {
-        inputs.current[i].classList.add("close");
-      } else inputs.current[i].classList.add("wrong");
-    }
-    if (guess === solution) {
-      console.log("win");
-      return;
-    }
-  }
+  useImperativeHandle(ref, () => ({
+    focusFirst: () => {
+      if (inputs.current[0]) {
+        inputs.current[0].focus();
+      }
+    },
+    getInputs: () => inputs, // optional: parent can access inputs if needed
+  }));
 
   function handleSelect(e, index) {
     while (index > 0 && inputs.current[index - 1].value.length === 0) {
@@ -52,8 +33,26 @@ const MyRow = () => {
     }
   }
 
+  function handleKeyDown(e, index) {
+    if (e.target.value.length === 1) {
+      index < LETTER_IN_WORD - 1 ? inputs.current[index + 1].focus() : null;
+    }
+
+    if (e.key === "Backspace" && e.target.value.length === 0 && index > 0) {
+      inputs.current[index - 1].value = "";
+      inputs.current[index - 1].focus();
+    }
+    if (e.key === "Enter" && index === LETTER_IN_WORD - 1) {
+      let guess = inputs.current
+        .map((l) => l.value)
+        .join("")
+        .toUpperCase();
+      checkSolution(guess, rowNum);
+    }
+  }
+
   return (
-    <div className="row-container">
+    <div ref={ref} className="row-container">
       {[...Array(LETTER_IN_WORD)].map((_, index) => (
         <input
           className="letter-box"
