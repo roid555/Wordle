@@ -32,3 +32,7 @@
 .wrong {
   background-color: gray;
 }
+
+input {
+  caret-color: transparent;
+}

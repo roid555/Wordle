@@ -34,20 +34,24 @@ const MyRow = ({
   }
 
   function handleKeyDown(e, index) {
-    if (e.target.value.length === 1) {
-      index < LETTER_IN_WORD - 1 ? inputs.current[index + 1].focus() : null;
-    }
-
+    console.log(e.key);
     if (e.key === "Backspace" && e.target.value.length === 0 && index > 0) {
       inputs.current[index - 1].value = "";
       inputs.current[index - 1].focus();
-    }
-    if (e.key === "Enter" && index === LETTER_IN_WORD - 1) {
+    } else if (
+      e.key === "Enter" &&
+      inputs.current[LETTER_IN_WORD - 1].value.length == 1
+    ) {
       let guess = inputs.current
         .map((l) => l.value)
         .join("")
         .toUpperCase();
       checkSolution(guess, rowNum);
+    } else if (/^[a-zA-Z]$/.test(e.key)) {
+    } else if (e.key == "Tab") {
+      e.preventDefault();
+    } else {
+      e.preventDefault();
     }
   }
 
