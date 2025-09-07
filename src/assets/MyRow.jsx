@@ -1,4 +1,3 @@
-import { div } from "framer-motion/client";
 import "./myRow.css";
 import React, { useRef, useImperativeHandle } from "react";
 import { PLAYER_ATTEMPTS, LETTER_IN_WORD } from "../constants";
@@ -11,30 +10,10 @@ const MyRow = ({
   const inputs = useRef([]);
 
   useImperativeHandle(ref, () => ({
-    focusFirst: () => {
-      if (inputs.current[0]) {
-        inputs.current[0].focus();
-      }
-    },
     getInputs: () => inputs, // optional: parent can access inputs if needed
   }));
 
-  function handleSelect(e, index) {
-    while (index > 0 && inputs.current[index - 1].value.length === 0) {
-      inputs.current[index - 1].focus();
-      index--;
-    }
-    while (
-      index < LETTER_IN_WORD - 1 &&
-      inputs.current[index].value.length === 1
-    ) {
-      inputs.current[index + 1].focus();
-      index++;
-    }
-  }
-
   function handleKeyDown(e, index) {
-    console.log(e.key);
     if (e.key === "Backspace" && e.target.value.length === 0 && index > 0) {
       inputs.current[index - 1].value = "";
       inputs.current[index - 1].focus();
@@ -58,15 +37,16 @@ const MyRow = ({
   return (
     <div ref={ref} className="row-container">
       {[...Array(LETTER_IN_WORD)].map((_, index) => (
-        <input
+        <div
           className="letter-box"
           key={index}
           type="text"
           maxLength={1}
           ref={(e) => (inputs.current[index] = e)}
-          onSelect={(e) => handleSelect(e, index)}
+          //onSelect={(e) => handleSelect(e, index)}
+          // onSelect={(e) => e.preventDefault()}
           onKeyDown={(e) => handleKeyDown(e, index)}
-        ></input>
+        ></div>
       ))}
     </div>
   );

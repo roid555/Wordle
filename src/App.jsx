@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
 import MyRow from "./assets/myRow.jsx";
 import "./constants.js";
@@ -7,6 +7,36 @@ import { PLAYER_ATTEMPTS, LETTER_IN_WORD } from "./constants";
 function App() {
   const [solution, setSolution] = useState("REACT");
   const rowRef = useRef([]);
+  let currentRow = 0;
+  let currentCol = 0;
+  let activeBox = [currentRow, currentCol];
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      switch (true) {
+        case e.key === "Backspace":
+          rowRef.current[currentRow].getInputs().current[currentCol].innerText =
+            "";
+          return;
+
+        case e.key === "Enter":
+          getGuess();
+          return;
+
+        case /^[a-zA-Z]$/.test(e.key):
+          rowRef.current[currentRow].getInputs().current[currentCol].innerText =
+            e.key;
+          return;
+      }
+
+      console.log(e.key);
+      console.log(/^[a-zA-Z]$/.test(e.key));
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   function checkSolution(guess, rowNum) {
     const inputsRefs = rowRef.current[rowNum].getInputs();
@@ -20,15 +50,25 @@ function App() {
     if (guess === solution) {
       console.log("win");
       return;
-    } else if (rowRef.current[rowNum + 1]) {
-      console.log(rowNum);
-      rowRef.current[rowNum + 1].focusFirst();
     }
+  }
+
+  function getGuess() {
+    let guess = rowRef.current[currentRow]
+      .getInputs()
+      .current.map((l) => {
+        l.value;
+        console.log(l.value);
+      })
+      .join("")
+      .toUpperCase();
+    console.log(guess);
+    return guess;
   }
 
   return (
     <>
-      <div className="attempt-container">
+      <div className="attempt-container" onClick={() => console.log("click")}>
         {[...Array(PLAYER_ATTEMPTS)].map((_, index) => (
           <MyRow
             key={index}
