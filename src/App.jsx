@@ -17,29 +17,30 @@ function App() {
         case e.key === "Backspace":
           rowRef.current[currentRow].getInputs().current[currentCol].innerText =
             "";
-          return;
+          if (currentCol > 0) currentCol -= 1;
+          break;
 
-        case e.key === "Enter":
-          getGuess();
+        case e.key === "Enter" && currentCol === LETTER_IN_WORD - 1:
+          checkSolution(rowRef.current[currentRow].getGuess());
           return;
 
         case /^[a-zA-Z]$/.test(e.key):
           rowRef.current[currentRow].getInputs().current[currentCol].innerText =
             e.key;
+          if (currentCol < LETTER_IN_WORD - 1) currentCol++;
+          return;
+        default:
           return;
       }
-
-      console.log(e.key);
-      console.log(/^[a-zA-Z]$/.test(e.key));
     };
 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [currentCol]);
 
-  function checkSolution(guess, rowNum) {
-    const inputsRefs = rowRef.current[rowNum].getInputs();
+  function checkSolution(guess) {
+    const inputsRefs = rowRef.current[currentRow].getInputs();
     for (let i = 0; i < LETTER_IN_WORD; i++) {
       if (guess[i] === solution[i]) {
         inputsRefs.current[i].classList.add("correct");
@@ -50,25 +51,17 @@ function App() {
     if (guess === solution) {
       console.log("win");
       return;
+    } else if (currentRow === PLAYER_ATTEMPTS - 1) {
+      console.log("lose");
+    } else {
+      currentRow++;
+      currentCol = 0;
     }
-  }
-
-  function getGuess() {
-    let guess = rowRef.current[currentRow]
-      .getInputs()
-      .current.map((l) => {
-        l.value;
-        console.log(l.value);
-      })
-      .join("")
-      .toUpperCase();
-    console.log(guess);
-    return guess;
   }
 
   return (
     <>
-      <div className="attempt-container" onClick={() => console.log("click")}>
+      <div className="attempt-container">
         {[...Array(PLAYER_ATTEMPTS)].map((_, index) => (
           <MyRow
             key={index}
